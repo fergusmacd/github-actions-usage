@@ -1,12 +1,13 @@
 # Add github config change label to any change of files in docs folder, or subfolders
 github-config-change:
- - .github/**/*
+  - .github/**/*
 
 # Add documentation label to any change of files in docs folder, or subfolders
 documentation:
- - docs/**/*
+  - ./*.md
+  - ./**/*.md
 
-# Add code change label to any change of files ending with tf
-code-change:
- - ./*.tf
- - ./**/*.tf
+# Add code change label to any change of files ending with py
+python-change:
+  - ./*.py
+  - ./**/*.py

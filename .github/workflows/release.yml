@@ -6,13 +6,13 @@ on:
     types: closed
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Tag
+      - name: Run Release
         uses: K-Phoen/semver-release-action@v1.3.1
         with:
-          release_branch: master
+          release_branch: main
           release_strategy: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

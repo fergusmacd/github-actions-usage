@@ -1,0 +1,20 @@
+name: "GitHub Audit"
+description: "Creates an audit of a named organisation"
+author: "Fergus MacDermot"
+inputs:
+  organisation:
+    description: "The organisation name"
+    required: true
+  gitHubAPIKey:
+    description: "The API key"
+    required: true
+  loglevel:
+    description: "The python logging level we want debug|info|warning|error"
+    required: false
+    default: "warning"
+outputs:
+  warnings:
+    description: "Number of warnings raised when something goes wrong"
+runs:
+  using: "docker"
+  image: "Dockerfile"
