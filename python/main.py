@@ -4,7 +4,7 @@ import xlsxwriter as xlsxwriter
 from ghaworkflows import *
 from ghorg import *
 
-LOGLEVEL = os.environ.get('LOGLEVEL', 'DEBUG').upper()
+LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 logging.basicConfig(format='%(asctime)s - %(levelname)s - {%(pathname)s:%(lineno)d} - %(message)s', level=LOGLEVEL)
 
 

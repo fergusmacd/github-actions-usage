@@ -5,7 +5,7 @@ import requests
 
 from common import *
 
-LOGLEVEL = os.environ.get('LOGLEVEL', 'DEBUG').upper()
+LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 logging.basicConfig(format='%(asctime)s - %(levelname)s - {%(pathname)s:%(lineno)d} - %(message)s', level=LOGLEVEL)
 
 # Set the header values

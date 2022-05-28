@@ -21,5 +21,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: actions-usage-report
-          path: ${{secrets.ORGANISATION}}
+          path: ${{secrets.ORGANISATION}}.xlsx
           if-no-files-found: error
