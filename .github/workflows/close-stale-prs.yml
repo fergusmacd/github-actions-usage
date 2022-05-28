@@ -1,0 +1,22 @@
+# https://github.com/actions/stale
+name: "Close stale issues"
+on:
+  schedule:
+  - cron: "0 0 * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/stale@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: 'This issue has not been commented on for 15 days. Marking it stale.'
+        stale-pr-message: 'This PR has not been commented on for 15 days. Marking it stale.'
+        stale-issue-label: 'no-issue-activity'
+        exempt-issue-labels: 'awaiting-approval,work-in-progress'
+        stale-pr-label: 'no-pr-activity'
+        exempt-pr-labels: 'awaiting-approval,work-in-progress'
+        only-labels: 'awaiting-feedback,awaiting-answers'
+        days-before-stale: 15
+        days-before-close: 5

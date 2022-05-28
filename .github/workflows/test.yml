@@ -1,0 +1,18 @@
+name: Test GHA Workflow
+on: push
+jobs:
+  test-report-generator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate PDF report
+        uses: fergusmacd/github-actions-costs@v0.0.1
+        # pass user input as arguments
+        with:
+          organisation: ${{secrets.ORGANISATION}}
+          gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
+      - name: Archive actions usage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: actions-usage-report
+          path: results/jfrog-terraform
+          if-no-files-found: error
