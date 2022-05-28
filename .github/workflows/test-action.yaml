@@ -1,0 +1,25 @@
+name: Test GHA Workflow
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Run Action
+        # we can give directory path that contains action.yaml or repo address in username/repository_name@version format
+        # in our case it would be nashmaniac/create-issue-action@v1.0 where v1.0 is the version of action
+        # for now we will give directory path. The directory must contain action.yaml
+        uses: ./
+        # pass user input as arguments
+        with:
+          organisation: ${{secrets.ORGANISATION}}
+          gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
+      - name: Archive actions usage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: actions-usage-report
+          path: ${{secrets.ORGANISATION}}.xlsx
+          if-no-files-found: error
