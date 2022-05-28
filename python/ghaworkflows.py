@@ -1,5 +1,4 @@
 import json
-import logging
 
 import requests
 
@@ -9,7 +8,7 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 logging.basicConfig(format='%(asctime)s - %(levelname)s - {%(pathname)s:%(lineno)d} - %(message)s', level=LOGLEVEL)
 
 # get any header or key values we need
-github_api_key = getGitHubAPIKey()
+github_api_key = getgithubapikey()
 headers = {"Authorization": "token {}".format(github_api_key),
            "Accept": "application/vnd.github.v3+json"}
 
