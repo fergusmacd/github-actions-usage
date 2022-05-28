@@ -35,7 +35,7 @@ def main():
         actions = []
         repoData = RepoData(repoName, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
         logging.info("*************** Repo Name %s ***************", repoData.name)
-
+        print("*************** Repo Name {} ***************".format(repoData.name))
         getrepoworkflows(org, repoData)
         reposUsage.append(repoData)
         logging.info("*************** Repo Usage Summary %s ***************", repoData.usage)
