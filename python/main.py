@@ -24,7 +24,8 @@ class RepoData:
 def main():
     org = os.environ['INPUT_ORGANISATION']
     logging.info("*************** Getting repos for %s ***************", org)
-
+    logaudititem("*************** here I am ********************")
+    logitem("****log an item***********")
     repoNames = getreposfromorganisation(org)
     totalRepos = len(repoNames)
     logging.info("*************** totalRepos %s ***************", totalRepos)
