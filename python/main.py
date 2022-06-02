@@ -1,11 +1,9 @@
 # The starting point
 import xlsxwriter as xlsxwriter
 
+from customlogger import logaudititem
 from ghaworkflows import *
 from ghorg import *
-
-LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
-logging.basicConfig(format='%(asctime)s - %(levelname)s - {%(pathname)s:%(lineno)d} - %(message)s', level=LOGLEVEL)
 
 
 class RepoData:
@@ -21,32 +19,33 @@ class RepoData:
         self.actions = actions
 
 
+logger = getlogger()
+
+
 def main():
     org = os.environ['INPUT_ORGANISATION']
-    logging.info("*************** Getting repos for %s ***************", org)
-    logaudititem("*************** here I am ********************")
-    logitem("****log an item***********")
+
+    logger.info(f'*************** Getting repos for {org} ***************')
+
     repoNames = getreposfromorganisation(org)
     totalRepos = len(repoNames)
-    logging.info("*************** totalRepos %s ***************", totalRepos)
+    logaudititem(f'*************** Total Repos: {totalRepos} ***************')
 
     reposUsage = []
     totalCosts = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
     for repoName in repoNames:
         actions = []
         repoData = RepoData(repoName, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
-        logging.info("*************** Repo Name %s ***************", repoData.name)
-        print("*************** Repo Name {} ***************".format(repoData.name))
+        logger.info(f"*************** Repo Name {repoData.name} ***************")
         getrepoworkflows(org, repoData)
         reposUsage.append(repoData)
-        logging.info("*************** Repo Usage Summary %s ***************", repoData.usage)
-        logging.info("\n\n")
+        logger.info(f"*************** Repo Usage Summary {repoData.usage} ***************")
         totalCosts["UBUNTU"] += repoData.usage["UBUNTU"]
         totalCosts["MACOS"] += repoData.usage["MACOS"]
         totalCosts["WINDOWS"] += repoData.usage["WINDOWS"]
 
-    logging.info("**********************************************")
-    logging.info("*************** Total Costs %s ***************", totalCosts)
+    logger.info("**********************************************")
+    logaudititem(f"*************** Total Costs: {totalCosts} ***************")
 
     workbook = xlsxwriter.Workbook(org + ".xlsx")
     worksheet = workbook.add_worksheet()
@@ -66,7 +65,8 @@ def main():
     # increment the row
     row = 1
     for repo in reposUsage:
-        logging.info("*************** Repo name %s ***************", repo.name)
+        logaudititem(f"*************** Repo name {repo.name} ***************")
+        logaudititem(f"*************** Repo Usage Summary {repo.usage} ***************")
         col = 0
         worksheet.write(row, col, repo.name)
         worksheet.write(row, col + 1, repo.usage["MACOS"])
@@ -74,7 +74,7 @@ def main():
         worksheet.write(row, col + 3, repo.usage["WINDOWS"])
         row = row + 1
         for action in repo.actions:
-            logging.info("*************** Action name and usage: %s ***************", action)
+            logaudititem(f"*************** Action name and usage: {action} ***************")
 
     # Write a total using a formula.
     macOSFormula = "=SUM(B1:B{})".format(row - 1)

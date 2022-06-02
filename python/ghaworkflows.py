@@ -3,9 +3,7 @@ import json
 import requests
 
 from common import *
-
-LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
-logging.basicConfig(format='%(asctime)s - %(levelname)s - {%(pathname)s:%(lineno)d} - %(message)s', level=LOGLEVEL)
+from customlogger import getlogger
 
 # get any header or key values we need
 github_api_key = getgithubapikey()
@@ -25,6 +23,9 @@ class Action:
                                                                 str(self.workflow["WINDOWS"]))
 
 
+logger = getlogger()
+
+
 def getrepoworkflows(org: object, repo: object) -> object:
     api_url = 'https://api.github.com/repos/{}/{}/actions/workflows'.format(org, repo.name)
     # call the API
@@ -36,10 +37,11 @@ def getrepoworkflows(org: object, repo: object) -> object:
     for workflow in json_data["workflows"]:
         workflowPath = workflow["path"]
         workflowName = workflowPath[workflowPath.rindex(delimiter) + 1:]
-        logging.info("*************** workflow name: %s , id: %s ***************", workflowName, workflow["id"])
+        workflowId = workflow["id"]
+        logger.info(f'*************** workflow name: {workflowName} , id: {workflowId} ***************')
         getrepoworkflowminutes(org, repo, workflowName, workflow["id"])
 
-    logging.info("*************** total usage: %s for repo: %s ***************", repo.usage, repo.name)
+    logger.info(f"*************** total usage: {repo.usage} for repo: {repo.name} ***************")
     return repo
 
 
@@ -58,8 +60,8 @@ def getrepoworkflowminutes(orgName, repo, workflowName, workflowId):
             repo.usage["MACOS"] += minutes
             action.workflow["MACOS"] = minutes
     except KeyError:
-        logging.info("*************** json_data %s , repo: %s, workflow: %s, workflow id: %s ***************",
-                     json_data, repo.name, workflowName, workflowId)
+        logger.error(f"*************** json_data {json_data} , repo: {repo.name}, workflow: {workflowName}, "
+                     f"workflow id: {workflowId} ***************")
 
     try:
         if "UBUNTU" in json_data["billable"]:
@@ -68,8 +70,8 @@ def getrepoworkflowminutes(orgName, repo, workflowName, workflowId):
             repo.usage["UBUNTU"] += minutes
             action.workflow["UBUNTU"] = minutes
     except KeyError:
-        logging.info("*************** json_data %s , repo: %s, workflow: %s, workflow id: %s ***************",
-                     json_data, repo.name, workflowName, workflowId)
+        logger.error(f"*************** json_data {json_data} , repo: {repo.name}, workflow: {workflowName}, "
+                     f"workflow id: {workflowId} ***************")
 
     try:
         if "WINDOWS" in json_data["billable"]:
@@ -78,8 +80,8 @@ def getrepoworkflowminutes(orgName, repo, workflowName, workflowId):
             repo.usage["WINDOWS"] += minutes
             action.workflow["WINDOWS"] = minutes
     except KeyError:
-        logging.info("*************** json_data %s , repo: %s, workflow: %s, workflow id: %s ***************",
-                     json_data, repo.name, workflowName, workflowId)
+        logger.error(f"*************** json_data {json_data} , repo: {repo.name}, workflow: {workflowName}, "
+                     f"workflow id: {workflowId} ***************")
 
     repo.actions.append(action)
-    logging.info("*************** action %s ***************", action)
+    logger.info(f"*************** action {action} ***************")
