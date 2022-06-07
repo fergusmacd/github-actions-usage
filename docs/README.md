@@ -1,4 +1,4 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fergusmacd_github-action-usage&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fergusmacd_github-action-usage)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fergusmacd_github-action-usage&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fergusmacd_github-action-usage)
 
 # GitHub Actions Costs
 
