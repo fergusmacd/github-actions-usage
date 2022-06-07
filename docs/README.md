@@ -1,3 +1,5 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fergusmacd_github-action-usage&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fergusmacd_github-action-usage)
+
 # GitHub Actions Costs
 
 GitHub action that calculates GitHub action costs for all repos and writes to Excel
