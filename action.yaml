@@ -1,12 +1,12 @@
-name: "GitHub Actions Billable"
-description: "Creates tables billable GitHub Action usage by repo and workflow"
+name: "GitHub Actions Billable Usage Audit"
+description: "Creates tables of billable GitHub Action usage by repo and workflow"
 author: "Fergus MacDermot"
 inputs:
   organisation:
     description: "The organisation name that we want to analyse"
     required: true
   gitHubAPIKey:
-    description: "The personal access token (PAT) API key with scope read:org and repo:full"
+    description: "Personal access token (PAT) API key with scope read:org and repo:full"
     required: true
   loglevel:
     description: "The python logging level we want. debug will give all details including request information.

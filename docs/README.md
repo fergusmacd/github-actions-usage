@@ -1,17 +1,67 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fergusmacd_github-action-usage&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fergusmacd_github-action-usage)
 
-# GitHub Actions Billable Minutes
+# GitHub Actions Billable Usage Audit
 
-GitHub Actions often take seconds to run but are billable in minutes rounded up. On top of that, MacOS minutes are
-multiplied by 10 and Windows minutes multiplied by 2, as per
-the [documentation](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions#calculating-minute-and-storage-spending)
-. This means that a 7 second action runtime will be billed as 1 minute on Ubuntu, 10 minutes on MacOS, and 2 minutes on
-Windows. The billable values printed out take these proportions into account.
+## Action Use Case
 
-This GitHub Action prints out two tables:
+Heavy usage of GitHub Actions (GHA) soon adds up. Once the limits have been reached the workflows will just stop unless
+a billing buffer has been set up. This can be extremely disruptive, if say the billing user is on holiday, or hard to
+reach. Even worse it's hard for repo owners to see what the usage is as billing info is restricted to admins. GitHub can
+send a usage CSV to admins listing every single run but there is too much information to easily isolate heavy usage
+repos and wokrflows.
+
+Furthermore, MacOS usage is charged at 10x, Windows 2x the rate of Ubuntu machines. This means that a 7 second action
+runtime will be billed as 1 minute on Ubuntu, 10 minutes on MacOS, and 2 minutes on Windows. MacOS builds can take 20-30
+minutes and costs can soon build up. The billable values printed out take these proportions into account.
+
+This action was set up to solve the following problems:
+
+- give clear visibility of GitHub Action billing usage to all users
+- show total usage per repo
+- show total usage per repo and workflow
+- show usage by machine type, i.e. Ubuntu, MacOS and Windows
+
+To do this, the GHA prints out two tables:
 
 - total billable usage per repo
 - billable usage per repo and workflow
+
+in the prettyprint formatted ASCII tables like this
+
+```
++-------------------------------+--------+-------+---------+
+| Repo Name                     | Ubuntu | MacOS | Windows |
++-------------------------------+--------+-------+---------+
+| aws-infra                     |   0    |   0   |    0    |
+| cicd-images                   |   0    |   0   |    0    |
+| terraform-github-repository   |   0    |   0   |    0    |
+| ---------                     |  ----  |  ---- |   ----  |
+| Total Costs                   |   30   |   0   |    0    |
+| ---------                     |  ----  |  ---- |   ----  |
++-------------------------------+--------+-------+---------+
+
++-------------------------------+---------------------+--------+-------+---------+
+| Repo Name                     | Workflow            | Ubuntu | MacOS | Windows |
++-------------------------------+---------------------+--------+-------+---------+
+| aws-infra                     | automerge.yml       |   0    |   0   |    0    |
+|                               | close-stale-prs.yml |   0    |   0   |    0    |
+|                               | enforce-labels.yml  |   0    |   0   |    0    |
+|                               | labeler.yml         |   0    |   0   |    0    |
+|                               | release.yml         |   0    |   0   |    0    |
+|                               | setup-terraform.yml |   0    |   0   |    0    |
+| --------                      | --------            | -----  | ----- |  -----  |
+| --------                      | --------            | -----  | ----- |  -----  |
+| github-audit                  | automerge.yml       |   0    |   0   |    0    |
+|                               | close-stale-prs.yml |   15   |   0   |    0    |
+|                               | enforce-labels.yml  |   0    |   0   |    0    |
+|                               | labeler.yml         |   0    |   0   |    0    |
+|                               | release.yml         |   0    |   0   |    0    |
+|                               | setup-terraform.yml |   0    |   0   |    0    |
+| --------                      | --------            | -----  | ----- |  -----  |
+| terraform-github-repository   | No workflows        |        |       |         |
+| --------                      | --------            | -----  | ----- |  -----  |
++-------------------------------+---------------------+--------+-------+---------+
+```
 
 ## Prerequisites to Run as an GH Action
 
@@ -20,11 +70,6 @@ This GitHub Action prints out two tables:
   repos and `repo:full` - for private repos
 
 ## Usage
-
-Tested on python 3.9 To make this compatible with running in GHA and locally, we do this
-
-API Key scope:
-)
 
 ### Running Locally
 
@@ -41,15 +86,24 @@ export INPUT_GITHUBAPIKEY="***"
 
 # from python directory you can run
 python main.py
+```
 
-# from root directory try docker
-docker build -t gha-costs .
+For Docker, run from the root directory
 
-docker run -v $PWD:/app/results -e LOGLEVEL=${LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-costs
+```
+# from root directory
+docker build -t gha-billable-usage .
+
+export LOGLEVEL=debug|info|warning|error
+export INPUT_ORGANISATION="myorg"
+export INPUT_GITHUBAPIKEY="***"
+docker run -v $PWD:/app/results -e LOGLEVEL=${LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
 
 ```
 
 ## Relevant Links
+
+[Billing documentation](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions#calculating-minute-and-storage-spending)
 
 The following APIs are used:
 
@@ -66,8 +120,9 @@ There are plenty of tutorials on prettyprint, I used this one:
 
 ## Road Map Items
 
+- alerts when limits are closed to being reached
 - export to excel and upload to packages
-- sorting configuration items
+- sorting by different criteria, e.g. tags or ownership
 - any requests?
 
 ## Other Notes
