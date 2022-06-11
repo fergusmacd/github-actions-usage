@@ -1,8 +1,11 @@
 # The starting point
+import os
+
 from prettytable import PrettyTable
 
-from ghaworkflows import *
-from ghorg import *
+from python.customlogger import getlogger
+from python.ghaworkflows import getrepoworkflows
+from python.ghorg import getreposfromorganisation
 
 
 class RepoData:
@@ -28,7 +31,6 @@ def main():
     # Get all the repo names for the org, will page results too
     # repo names are returned sorted
     repoNames = getreposfromorganisation(org)
-    # totalRepos = len(repoNames)
 
     reposUsage = []
     totalCosts = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
@@ -48,34 +50,34 @@ def main():
     # table tp print out per repo/workflow
     # Repo names are already sorted and we don't want to sort on tables
     # as order would mess up with totals
-    workflowTable = PrettyTable()
-    workflowTable.field_names = ["Repo Name", "Workflow", "Ubuntu", "MacOS", "Windows"]
-    workflowTable.align["Repo Name"] = "l"
-    workflowTable.align["Workflow"] = "l"
-    summaryTable = PrettyTable()
-    summaryTable.field_names = ["Repo Name", "Ubuntu", "MacOS", "Windows"]
-    summaryTable.align["Repo Name"] = "l"
+    workflow_table: PrettyTable = PrettyTable()
+    workflow_table.field_names = ["Repo Name", "Workflow", "Ubuntu", "MacOS", "Windows"]
+    workflow_table.align["Repo Name"] = "l"
+    workflow_table.align["Workflow"] = "l"
+    summary_table: PrettyTable = PrettyTable()
+    summary_table.field_names = ["Repo Name", "Ubuntu", "MacOS", "Windows"]
+    summary_table.align["Repo Name"] = "l"
 
     for repo in reposUsage:
-        summaryTable.add_row([repo.name, repo.usage["UBUNTU"], repo.usage["MACOS"], repo.usage["WINDOWS"]])
-        firstRow: bool = True
+        summary_table.add_row([repo.name, repo.usage["UBUNTU"], repo.usage["MACOS"], repo.usage["WINDOWS"]])
+        first_row: bool = True
         if not repo.actions:
-            workflowTable.add_row([repo.name, "No workflows", "0", "0", "0"])
+            workflow_table.add_row([repo.name, "No workflows", "0", "0", "0"])
         for action in repo.actions:
-            if firstRow:
-                workflowTable.add_row([repo.name, action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
-                                       action.workflow['WINDOWS']])
-                firstRow = False
+            if first_row:
+                workflow_table.add_row([repo.name, action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
+                                        action.workflow['WINDOWS']])
+                first_row = False
             else:
-                workflowTable.add_row(["", action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
-                                       action.workflow['WINDOWS']])
-        workflowTable.add_row(["--------", "--------", "-----", "-----", "-----"])
+                workflow_table.add_row(["", action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
+                                        action.workflow['WINDOWS']])
+        workflow_table.add_row(["--------", "--------", "-----", "-----", "-----"])
 
-    summaryTable.add_row(["---------", "----", "----", "----"])
-    summaryTable.add_row(["Total Costs", totalCosts["UBUNTU"], totalCosts["MACOS"], totalCosts["WINDOWS"]])
-    summaryTable.add_row(["---------", "----", "----", "----"])
-    print(summaryTable)
-    print(workflowTable)
+    summary_table.add_row(["---------", "----", "----", "----"])
+    summary_table.add_row(["Total Costs", totalCosts["UBUNTU"], totalCosts["MACOS"], totalCosts["WINDOWS"]])
+    summary_table.add_row(["---------", "----", "----", "----"])
+    print(summary_table)
+    print(workflow_table)
 
 
 if __name__ == "__main__":

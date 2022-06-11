@@ -123,6 +123,8 @@ There are plenty of tutorials on prettyprint, I used this one:
 - alerts when limits are closed to being reached
 - export to excel and upload to packages
 - sorting by different criteria, e.g. tags or ownership
+- test coverage
+- colouring console
 - any requests?
 
 ## Other Notes
