@@ -23,6 +23,8 @@ class RepoData:
 
 logger = getlogger()
 
+repo_name_column_header = "Repo Name"
+
 
 def main():
     org = os.environ['INPUT_ORGANISATION']
@@ -51,12 +53,12 @@ def main():
     # Repo names are already sorted and we don't want to sort on tables
     # as order would mess up with totals
     workflow_table: PrettyTable = PrettyTable()
-    workflow_table.field_names = ["Repo Name", "Workflow", "Ubuntu", "MacOS", "Windows"]
-    workflow_table.align["Repo Name"] = "l"
+    workflow_table.field_names = [repo_name_column_header, "Workflow", "Ubuntu", "MacOS", "Windows"]
+    workflow_table.align[repo_name_column_header] = "l"
     workflow_table.align["Workflow"] = "l"
     summary_table: PrettyTable = PrettyTable()
-    summary_table.field_names = ["Repo Name", "Ubuntu", "MacOS", "Windows"]
-    summary_table.align["Repo Name"] = "l"
+    summary_table.field_names = [repo_name_column_header, "Ubuntu", "MacOS", "Windows"]
+    summary_table.align[repo_name_column_header] = "l"
 
     for repo in reposUsage:
         summary_table.add_row([repo.name, repo.usage["UBUNTU"], repo.usage["MACOS"], repo.usage["WINDOWS"]])
