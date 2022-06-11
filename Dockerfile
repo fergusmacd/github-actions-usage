@@ -1,19 +1,21 @@
 FROM python:3-slim AS builder
-ADD . /app
+
 
 
 # We are installing a dependency here directly into our app source dir
-RUN python -m pip install --upgrade pip
 
-RUN adduser -D myuser
+
+RUN adduser myuser
 USER myuser
+ADD . /app
+#RUN chown -R myuser:myuser /app
 WORKDIR /app
+RUN python -m pip install --upgrade pip
+#COPY --chown=myuser:myuser requirements.txt requirements.txt
+#RUN pip install --user -r requirements.txt
 
-COPY --chown=myuser:myuser requirements.txt requirements.txt
-RUN pip install --user -r requirements.txt
 
-
-RUN pip install --target=/app -r ./python/requirements.txt
+RUN pip install --user -r ./python/requirements.txt
 
 # A distroless container image with Python and some basics like SSL certificates
 # https://github.com/GoogleContainerTools/distroless
