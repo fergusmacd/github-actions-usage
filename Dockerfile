@@ -1,9 +1,18 @@
 FROM python:3-slim AS builder
 ADD . /app
-WORKDIR /app
+
 
 # We are installing a dependency here directly into our app source dir
 RUN python -m pip install --upgrade pip
+
+RUN adduser -D myuser
+USER myuser
+WORKDIR /app
+
+COPY --chown=myuser:myuser requirements.txt requirements.txt
+RUN pip install --user -r requirements.txt
+
+
 RUN pip install --target=/app -r ./python/requirements.txt
 
 # A distroless container image with Python and some basics like SSL certificates
