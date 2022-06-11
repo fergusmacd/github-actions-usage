@@ -34,6 +34,7 @@ def getreposfromorganisation(org):
     pageUntil = int(totalRepos / perPage) + (totalRepos % perPage > 0)
     logger.debug(f'Pages: {pageUntil}')
     repos = []
+
     for page in range(pageUntil):
         api_url = 'https://api.github.com/orgs/{}/repos?page={}&per_page={}'.format(org, page + 1, perPage)
         logger.debug(f'Calling: {api_url}')
@@ -43,4 +44,5 @@ def getreposfromorganisation(org):
         for repo in json_data:
             repos.append(repo["name"])
 
+    repos.sort()
     return repos

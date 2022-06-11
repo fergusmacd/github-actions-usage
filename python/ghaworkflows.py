@@ -76,7 +76,7 @@ def getrepoworkflowminutes(orgName, repo, workflowName, workflowId):
     try:
         if "WINDOWS" in json_data["billable"]:
             milliseconds = json_data["billable"]["WINDOWS"]["total_ms"]
-            minutes = int((milliseconds / (1000 * 60)))
+            minutes = int((milliseconds / (1000 * 60) * 2))
             repo.usage["WINDOWS"] += minutes
             action.workflow["WINDOWS"] = minutes
     except KeyError:

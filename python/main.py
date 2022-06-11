@@ -1,7 +1,6 @@
 # The starting point
-import xlsxwriter as xlsxwriter
+from prettytable import PrettyTable
 
-from customlogger import logaudititem
 from ghaworkflows import *
 from ghorg import *
 
@@ -26,13 +25,14 @@ def main():
     org = os.environ['INPUT_ORGANISATION']
 
     logger.info(f'*************** Getting repos for {org} ***************')
-
+    # Get all the repo names for the org, will page results too
+    # repo names are returned sorted
     repoNames = getreposfromorganisation(org)
-    totalRepos = len(repoNames)
-    logaudititem(f'*************** Total Repos: {totalRepos} ***************')
+    # totalRepos = len(repoNames)
 
     reposUsage = []
     totalCosts = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
+    # Collect the data from each repo
     for repoName in repoNames:
         actions = []
         repoData = RepoData(repoName, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
@@ -44,48 +44,38 @@ def main():
         totalCosts["MACOS"] += repoData.usage["MACOS"]
         totalCosts["WINDOWS"] += repoData.usage["WINDOWS"]
 
-    logger.info("**********************************************")
-    logaudititem(f"*************** Total Costs: {totalCosts} ***************")
+    logger.info(f"***************Total Costs: {totalCosts} *******************")
+    # table tp print out per repo/workflow
+    # Repo names are already sorted and we don't want to sort on tables
+    # as order would mess up with totals
+    workflowTable = PrettyTable()
+    workflowTable.field_names = ["Repo Name", "Workflow", "Ubuntu", "MacOS", "Windows"]
+    workflowTable.align["Repo Name"] = "l"
+    workflowTable.align["Workflow"] = "l"
+    summaryTable = PrettyTable()
+    summaryTable.field_names = ["Repo Name", "Ubuntu", "MacOS", "Windows"]
+    summaryTable.align["Repo Name"] = "l"
 
-    workbook = xlsxwriter.Workbook(org + ".xlsx")
-    worksheet = workbook.add_worksheet()
-    detailedWorksheet = workbook.add_worksheet()
-    row = 0
-    worksheet.write(row, 0, "Repo Name")
-    worksheet.write(row, 1, "MacOS")
-    worksheet.write(row, 2, "Ubuntu")
-    worksheet.write(row, 3, "Windows")
-
-    detailedWorksheet.write(row, 0, "Repo Name")
-    detailedWorksheet.write(row, 1, "MacOS")
-    detailedWorksheet.write(row, 2, "MacOS")
-    detailedWorksheet.write(row, 3, "Ubuntu")
-    detailedWorksheet.write(row, 4, "Windows")
-
-    # increment the row
-    row = 1
     for repo in reposUsage:
-        logaudititem(f"*************** Repo name {repo.name} ***************")
-        logaudititem(f"*************** Repo Usage Summary {repo.usage} ***************")
-        col = 0
-        worksheet.write(row, col, repo.name)
-        worksheet.write(row, col + 1, repo.usage["MACOS"])
-        worksheet.write(row, col + 2, repo.usage["UBUNTU"])
-        worksheet.write(row, col + 3, repo.usage["WINDOWS"])
-        row = row + 1
+        summaryTable.add_row([repo.name, repo.usage["UBUNTU"], repo.usage["MACOS"], repo.usage["WINDOWS"]])
+        firstRow: bool = True
+        if not repo.actions:
+            workflowTable.add_row([repo.name, "No workflows", "0", "0", "0"])
         for action in repo.actions:
-            logaudititem(f"*************** Action name and usage: {action} ***************")
+            if firstRow:
+                workflowTable.add_row([repo.name, action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
+                                       action.workflow['WINDOWS']])
+                firstRow = False
+            else:
+                workflowTable.add_row(["", action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
+                                       action.workflow['WINDOWS']])
+        workflowTable.add_row(["--------", "--------", "-----", "-----", "-----"])
 
-    # Write a total using a formula.
-    macOSFormula = "=SUM(B1:B{})".format(row - 1)
-    ubuntuOSFormula = "=SUM(C1:C{})".format(row - 1)
-    windowsOSFormula = "=SUM(D1:D{})".format(row - 1)
-    worksheet.write(row, 0, 'Totals')
-    worksheet.write(row, 1, macOSFormula)
-    worksheet.write(row, 2, ubuntuOSFormula)
-    worksheet.write(row, 3, windowsOSFormula)
-
-    workbook.close()
+    summaryTable.add_row(["---------", "----", "----", "----"])
+    summaryTable.add_row(["Total Costs", totalCosts["UBUNTU"], totalCosts["MACOS"], totalCosts["WINDOWS"]])
+    summaryTable.add_row(["---------", "----", "----", "----"])
+    print(summaryTable)
+    print(workflowTable)
 
 
 if __name__ == "__main__":
