@@ -17,10 +17,4 @@ jobs:
         with:
           organisation: ${{secrets.ORGANISATION}}
           gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
-          LOGLEVEL: debug
-      - name: Archive actions usage results
-        uses: actions/upload-artifact@v3
-        with:
-          name: actions-usage-report
-          path: ${{secrets.ORGANISATION}}.xlsx
-          if-no-files-found: error
+          loglevel: debug

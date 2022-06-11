@@ -1,20 +1,21 @@
-name: "GitHub Audit"
-description: "Creates an audit of a named organisation"
+name: "GitHub Actions Billable Usage Audit"
+description: "Creates tables of billable GitHub Action usage by repo and workflow"
 author: "Fergus MacDermot"
 inputs:
   organisation:
-    description: "The organisation name"
+    description: "The organisation name that we want to analyse"
     required: true
   gitHubAPIKey:
-    description: "The API key"
+    description: "Personal access token (PAT) API key with scope read:org and repo:full"
     required: true
   loglevel:
-    description: "The python logging level we want debug|info|warning|error"
+    description: "The python logging level we want. debug will give all details including request information.
+      info will give logging from the python code. warning and error return any exceptions"
     required: false
     default: "warning"
 outputs:
   warnings:
-    description: "Number of warnings raised when something goes wrong"
+    description: "prettyprint formatted tables with billable minutes by repo and workflow"
 runs:
   using: "docker"
   image: "Dockerfile"
