@@ -6,7 +6,7 @@ from prettytable import PrettyTable
 
 from customlogger import getlogger
 from ghaworkflows import getrepoworkflows
-from ghorg import getreposfromorganisation
+from ghorg import getreposfromorganisation, getremainingdaysinbillingperiod
 
 
 class RepoData:
@@ -35,7 +35,7 @@ def main():
     # Get all the repo names for the org, will page results too
     # repo names are returned sorted
     repo_names = getreposfromorganisation(org)
-
+    billing_days_left = getremainingdaysinbillingperiod(org)
     repos_usage = []
     total_costs = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
     # Collect the data from each repo
@@ -90,10 +90,12 @@ def main():
          total_costs["MACOS"],
          total_costs["WINDOWS"]])
     summary_table.add_row(["---------", "----", "----", "----"])
+    summary_table.add_row(["Days left in cycle: " + str(billing_days_left), "", "", ""])
     workflow_table.add_row(["Billable Minutes " + datetime.now().strftime(datetime_format), "",
                             validate_total_costs["UBUNTU"], validate_total_costs["MACOS"],
                             validate_total_costs["WINDOWS"]])
-
+    workflow_table.add_row(["--------", "--------", "-----", "-----", "-----"])
+    workflow_table.add_row(["Days left in cycle: " + str(billing_days_left), "", "", "", ""])
     print(summary_table)
     print(workflow_table)
 

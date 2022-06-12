@@ -2,31 +2,49 @@
 
 # GitHub Actions Billable Usage Audit
 
-## Action Use Case
+This GitHub Action can:
 
-Heavy usage of GitHub Actions (GHA) soon adds up. Once the limits have been reached the workflows will just stop unless
-a billing buffer has been set up. This can be extremely disruptive, if say the billing user is on holiday, or hard to
-reach. Even worse it's hard for repo owners to see what the usage is as billing info is restricted to admins. GitHub can
-send a usage CSV to admins listing every single run but there is too much information to easily isolate heavy usage
-repos and wokrflows.
+- print out action billable usage per organization repo
+- print out action billable usage per organization repo and workflow
+- show totals for both of the above
+- print out the number of remaining days in the billing cycle
+- be run locally with Docker or python
+
+## What is the Reason for this Action?
+
+This action came about because a project I was working on kept running out of free minutes very quickly. As an admin I
+was asking teams to reduce usage, but they had no idea which repos and workflows were clocking up the minutes. Worse,
+the billing user was away for a day, the free minutes ran out, and we had no buffer set up. Development and deployment
+came to a virtual standstill. So I started investigating ways to make usage more transparent.
+
+With the use of GitHub Actions (GHA) in build and deploy pipelines, usage adda up very quickly. Once the monthly limit
+has been reached, as we found out, the workflows will just stop running thereby causing huge disruption in the build and
+delivery pipeline. If the billing user is on holiday, this is pretty disastrous. Better to be forewarned and so extra
+credits can be added by the billing owner.
+
+However, the billable minutes total is hidden away in the admin section and so repo owners cannot even see GHA usage.
+Even if they could, the usage CSV that GitHub sends out contains too much information making it hard to isolate heavy
+usage workflows and repos.
 
 Furthermore, MacOS usage is charged at 10x, Windows 2x the rate of Ubuntu machines. This means that a 7 second action
 runtime will be billed as 1 minute on Ubuntu, 10 minutes on MacOS, and 2 minutes on Windows. MacOS builds can take 20-30
-minutes and costs can soon build up. The billable values printed out take these proportions into account.
+minutes and costs can soon build up. It turned out, this was the cause of our high usage. Top tip: don't build MacOS
+machines in GitHub.
 
-This action was set up to solve the following problems:
+So I wrote this action to address the problems above, in the following way:
 
 - give clear visibility of GitHub Action billing usage to all users
 - show total usage per repo
 - show total usage per repo and workflow
 - show usage by machine type, i.e. Ubuntu, MacOS and Windows
+- show remaining days in the billing period
 
 To do this, the GHA prints out two tables:
 
 - total billable usage per repo
 - billable usage per repo and workflow
 
-in the prettyprint formatted ASCII tables like this
+in the prettyprint formatted ASCII tables like this:
 
 ```
 +-------------------------------+--------+-------+---------+
@@ -178,7 +196,10 @@ The following APIs are used:
   to get the repo information
 - [GitHub List Repository Workflow API](https://docs.github.com/en/rest/actions/workflows#list-repository-workflows) -
   to get the repository workflows
-- [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage)
+- [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage) - for workflow
+  usage
+- [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
+  - for days left in billing cycle
 
 There are plenty of tutorials on prettyprint, I used this one:
 
@@ -193,7 +214,3 @@ There are plenty of tutorials on prettyprint, I used this one:
 - test scripts
 - colouring console
 - any requests?
-
-## Other Notes
-
-My background is technologies other than python. Feel free to suggest better ways of doing things.
