@@ -39,9 +39,9 @@ def main():
     repos_usage = []
     total_costs = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
     # Collect the data from each repo
-    for repoName in repo_names:
+    for repo_name in repo_names:
         actions = []
-        repo_data = RepoData(repoName, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
+        repo_data = RepoData(repo_name, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
         logger.info(f"*************** Repo Name {repo_data.name} ***************")
         getrepoworkflows(org, repo_data)
         repos_usage.append(repo_data)

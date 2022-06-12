@@ -73,7 +73,7 @@ in the prettyprint formatted ASCII tables like this
 
 ### As a GitHub Action
 
-Create a file called `gha-audit.yml` in your workflows directory, paste the following as the contents and you are good
+Create a file called `gha-audit.yml` in your `workflows` directory, paste the following as the contents and you are good
 to go
 
 ```
