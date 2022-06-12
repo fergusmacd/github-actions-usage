@@ -6,10 +6,7 @@ from logging import StreamHandler
 DEBUG_FORMAT = (
     "%(asctime)s [%(levelname)s]: %(message)s in %(pathname)s:%(lineno)d")
 
-AUDIT_FORMAT = (
-    "%(message)s")
-LOG_LEVEL = os.environ.get('LOGLEVEL', 'WARNING').upper()
-
+LOG_LEVEL = os.environ.get('INPUT_LOGLEVEL', 'WARNING').upper()
 # the debug logger is for figuring out what is going on
 debug_logger = logging.getLogger("debug")
 debug_logger.setLevel(LOG_LEVEL)
@@ -24,7 +21,7 @@ def getlogger():
 
 
 def main():
-    getlogger.error('Who knows where they got the money?!')
+    getlogger.error('The TV people are back!')
 
 
 if __name__ == "__main__":

@@ -12,8 +12,4 @@ FROM gcr.io/distroless/python3-debian11
 COPY --from=builder /app /app
 WORKDIR /app
 ENV PYTHONPATH /app
-# strictly speaking not necessary but makes it easier if working out what is happening
-# Useful when running locally
-ENV INPUT_ORGANISATION=
-ENV INPUT_GITHUBAPIKEY=
 CMD ["/app/python/main.py"]
