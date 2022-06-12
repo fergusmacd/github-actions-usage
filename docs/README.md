@@ -196,7 +196,10 @@ The following APIs are used:
   to get the repo information
 - [GitHub List Repository Workflow API](https://docs.github.com/en/rest/actions/workflows#list-repository-workflows) -
   to get the repository workflows
-- [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage)
+- [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage) - for workflow
+  usage
+- [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
+  - for days left in billing cycle
 
 There are plenty of tutorials on prettyprint, I used this one:
 
