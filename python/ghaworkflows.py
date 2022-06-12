@@ -2,9 +2,9 @@ import json
 
 import requests
 
-from customlogger import getlogger
 # get any header or key values we need
-from python.common import getgithubapikey
+from common import getgithubapikey
+from customlogger import getlogger
 
 github_api_key = getgithubapikey()
 headers = {"Authorization": "token {}".format(github_api_key),

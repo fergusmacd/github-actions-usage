@@ -71,16 +71,40 @@ in the prettyprint formatted ASCII tables like this
 
 ## Usage
 
+### As a GitHub Action
+
+Create a file called `gha-audit.yml` in your workflows directory, paste the following as the contents and you are good
+to go
+
+```
+name: GHA Billable Audit
+on: push
+jobs:
+  gha-billable-minutes-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub Actions Billable Usage Audit
+        uses: fergusmacd/github-action-usage@v0.4.0
+        # pass user input as arguments
+        with:
+          organisation: ${{secrets.ORGANISATION}}
+          gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
+          loglevel: error # not required, change to debug if misbehaving
+```
+
 ### Running Locally
 
 The docker file and python script can both be run locally in the following ways.
 
+### Running with Python
+
 For python, from the python directory
 
-```
+```shell
 pip install -r requirements.txt
 # default is warning, see the action.yaml for further details
-export LOGLEVEL=debug|info|warning|error
+# GHA environment variables prepend INPUT_ to values passed in
+export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
 
@@ -88,17 +112,59 @@ export INPUT_GITHUBAPIKEY="***"
 python main.py
 ```
 
+### Running with Docker
+
 For Docker, run from the root directory
 
-```
+```shell
 # from root directory
 docker build -t gha-billable-usage .
-
-export LOGLEVEL=debug|info|warning|error
+# GHA environment variables prepend INPUT_ to values passed in
+export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
-docker run -v $PWD:/app/results -e LOGLEVEL=${LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
+docker run -v $PWD:/app/results -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
+```
 
+## Common Errors
+
+When problems happen, the best thing to do is set the log level to `debug` like this locally
+
+```shell
+export LOGLEVEL="debug"
+```
+
+Or change the loglevel input in the GHA
+
+The following one happens when running locally and the `INPUT_GITHUBAPIKEY` environment variable has not been exported
+
+```shell
+python3 main.py
+Traceback (most recent call last):
+  File "/github-action-usage/python/main.py", line 5, in <module>
+    from ghaworkflows import *
+  File "/github-action-usage/python/ghaworkflows.py", line 9, in <module>
+    github_api_key = getgithubapikey()
+  File "/github-action-usage/python/common.py", line 24, in getgithubapikey
+    return os.environ['INPUT_GITHUBAPIKEY']
+  File "/usr/local/Cellar/python@3.9/3.9.12/Frameworks/Python.framework/Versions/3.9/lib/python3.9/os.py", line 679, in __getitem__
+    raise KeyError(key) from None
+KeyError: 'INPUT_GITHUBAPIKEY'
+
+```
+
+This error happens when the PAT has expired or does not have sufficient permissions
+
+```shell
+python3 main.py                                                     
+Traceback (most recent call last):
+  File "/github-action-usage/python/main.py", line 92, in <module>
+    main()
+  File "/github-action-usage/python/main.py", line 30, in main
+    repoNames = getreposfromorganisation(org)
+  File "/github-action-usage/python/ghorg.py", line 27, in getreposfromorganisation
+    totalPrivateRepos = json_data["total_private_repos"]
+KeyError: 'total_private_repos'
 ```
 
 ## Relevant Links
@@ -124,6 +190,7 @@ There are plenty of tutorials on prettyprint, I used this one:
 - export to excel and upload to packages
 - sorting by different criteria, e.g. tags or ownership
 - test coverage
+- test scripts
 - colouring console
 - any requests?
 

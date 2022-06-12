@@ -1,11 +1,12 @@
 # The starting point
 import os
+from datetime import datetime
 
 from prettytable import PrettyTable
 
-from python.customlogger import getlogger
-from python.ghaworkflows import getrepoworkflows
-from python.ghorg import getreposfromorganisation
+from customlogger import getlogger
+from ghaworkflows import getrepoworkflows
+from ghorg import getreposfromorganisation
 
 
 class RepoData:
@@ -24,6 +25,7 @@ class RepoData:
 logger = getlogger()
 
 repo_name_column_header = "Repo Name"
+datetime_format = "%Y-%m-%d %H:%M"
 
 
 def main():
@@ -32,23 +34,23 @@ def main():
     logger.info(f'*************** Getting repos for {org} ***************')
     # Get all the repo names for the org, will page results too
     # repo names are returned sorted
-    repoNames = getreposfromorganisation(org)
+    repo_names = getreposfromorganisation(org)
 
-    reposUsage = []
-    totalCosts = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
+    repos_usage = []
+    total_costs = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
     # Collect the data from each repo
-    for repoName in repoNames:
+    for repoName in repo_names:
         actions = []
-        repoData = RepoData(repoName, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
-        logger.info(f"*************** Repo Name {repoData.name} ***************")
-        getrepoworkflows(org, repoData)
-        reposUsage.append(repoData)
-        logger.info(f"*************** Repo Usage Summary {repoData.usage} ***************")
-        totalCosts["UBUNTU"] += repoData.usage["UBUNTU"]
-        totalCosts["MACOS"] += repoData.usage["MACOS"]
-        totalCosts["WINDOWS"] += repoData.usage["WINDOWS"]
+        repo_data = RepoData(repoName, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
+        logger.info(f"*************** Repo Name {repo_data.name} ***************")
+        getrepoworkflows(org, repo_data)
+        repos_usage.append(repo_data)
+        logger.info(f"*************** Repo Usage Summary {repo_data.usage} ***************")
+        total_costs["UBUNTU"] += repo_data.usage["UBUNTU"]
+        total_costs["MACOS"] += repo_data.usage["MACOS"]
+        total_costs["WINDOWS"] += repo_data.usage["WINDOWS"]
 
-    logger.info(f"***************Total Costs: {totalCosts} *******************")
+    logger.info(f"***************Total Costs: {total_costs} *******************")
     # table tp print out per repo/workflow
     # Repo names are already sorted and we don't want to sort on tables
     # as order would mess up with totals
@@ -59,8 +61,8 @@ def main():
     summary_table: PrettyTable = PrettyTable()
     summary_table.field_names = [repo_name_column_header, "Ubuntu", "MacOS", "Windows"]
     summary_table.align[repo_name_column_header] = "l"
-
-    for repo in reposUsage:
+    validate_total_costs = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
+    for repo in repos_usage:
         summary_table.add_row([repo.name, repo.usage["UBUNTU"], repo.usage["MACOS"], repo.usage["WINDOWS"]])
         first_row: bool = True
         if not repo.actions:
@@ -70,14 +72,28 @@ def main():
                 workflow_table.add_row([repo.name, action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
                                         action.workflow['WINDOWS']])
                 first_row = False
+                validate_total_costs["UBUNTU"] += action.workflow["UBUNTU"]
+                validate_total_costs["MACOS"] += action.workflow["MACOS"]
+                validate_total_costs["WINDOWS"] += action.workflow["WINDOWS"]
             else:
                 workflow_table.add_row(["", action.name, action.workflow['UBUNTU'], action.workflow['MACOS'],
                                         action.workflow['WINDOWS']])
+                validate_total_costs["UBUNTU"] += action.workflow["UBUNTU"]
+                validate_total_costs["MACOS"] += action.workflow["MACOS"]
+                validate_total_costs["WINDOWS"] += action.workflow["WINDOWS"]
+
         workflow_table.add_row(["--------", "--------", "-----", "-----", "-----"])
 
     summary_table.add_row(["---------", "----", "----", "----"])
-    summary_table.add_row(["Total Costs", totalCosts["UBUNTU"], totalCosts["MACOS"], totalCosts["WINDOWS"]])
+    summary_table.add_row(
+        ["Billable Minutes " + datetime.now().strftime(datetime_format), total_costs["UBUNTU"],
+         total_costs["MACOS"],
+         total_costs["WINDOWS"]])
     summary_table.add_row(["---------", "----", "----", "----"])
+    workflow_table.add_row(["Billable Minutes " + datetime.now().strftime(datetime_format), "",
+                            validate_total_costs["UBUNTU"], validate_total_costs["MACOS"],
+                            validate_total_costs["WINDOWS"]])
+
     print(summary_table)
     print(workflow_table)
 
