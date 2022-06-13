@@ -92,7 +92,9 @@ in the prettyprint formatted ASCII tables like this:
 ### As a GitHub Action
 
 Create a file called `gha-audit.yml` in your `workflows` directory, paste the following as the contents and you are good
-to go
+to
+go. [GHA best practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions)
+recommend using a commit SHA, rather than a version.
 
 ```
 name: GHA Billable Audit
@@ -199,7 +201,7 @@ The following APIs are used:
 - [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage) - for workflow
   usage
 - [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
-  - for days left in billing cycle
+    - for days left in billing cycle
 
 There are plenty of tutorials on prettyprint, I used this one:
 
