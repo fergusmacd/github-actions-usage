@@ -52,38 +52,54 @@ To do this, the GHA prints out two tables:
 in the prettyprint formatted ASCII tables like this:
 
 ```
-+-------------------------------+--------+-------+---------+
-| Repo Name                     | Ubuntu | MacOS | Windows |
-+-------------------------------+--------+-------+---------+
-| aws-infra                     |   0    |   0   |    0    |
-| cicd-images                   |   0    |   0   |    0    |
-| terraform-github-repository   |   0    |   0   |    0    |
-| ---------                     |  ----  |  ---- |   ----  |
-| Total Costs                   |   30   |   0   |    0    |
-| ---------                     |  ----  |  ---- |   ----  |
-+-------------------------------+--------+-------+---------+
++--------------------------------+--------+-------+---------+
+| Repo Name                      | Ubuntu | MacOS | Windows |
++------------------------------- +--------+-------+---------+
+| aws-infra                      |   0    |   0   |    0    |
+| cicd-images                    |   12   |   0   |    0    |
+| terraform-github-repository    |   39   |   0   |    0    |
+| ---------                      |  ----  |  ---- |   ----  |
+| Usage Minutes 2022-06-13 13:59 |   51   |   0   |    0    |
+| ---------                      |  ----  |  ---- |   ----  |
+| Stats From GitHub              |        |       |         |
+| Monthly Allowance: 2000        |        |       |         |
+| Usage Minutes: 51              |   51   |   0   |    0    |
+| Remaining Minutes: 1949        |        |       |         |
+| Alarm Triggered at: 150        |        |       |         |
+| Paid Minutes: 0                |        |       |         |
+| Days Left in Cycle: 13         |        |       |         |
++--------------------------------+--------+-------+---------+
 
-+-------------------------------+---------------------+--------+-------+---------+
-| Repo Name                     | Workflow            | Ubuntu | MacOS | Windows |
-+-------------------------------+---------------------+--------+-------+---------+
-| aws-infra                     | automerge.yml       |   0    |   0   |    0    |
-|                               | close-stale-prs.yml |   0    |   0   |    0    |
-|                               | enforce-labels.yml  |   0    |   0   |    0    |
-|                               | labeler.yml         |   0    |   0   |    0    |
-|                               | release.yml         |   0    |   0   |    0    |
-|                               | setup-terraform.yml |   0    |   0   |    0    |
-| --------                      | --------            | -----  | ----- |  -----  |
-| --------                      | --------            | -----  | ----- |  -----  |
-| github-audit                  | automerge.yml       |   0    |   0   |    0    |
-|                               | close-stale-prs.yml |   15   |   0   |    0    |
-|                               | enforce-labels.yml  |   0    |   0   |    0    |
-|                               | labeler.yml         |   0    |   0   |    0    |
-|                               | release.yml         |   0    |   0   |    0    |
-|                               | setup-terraform.yml |   0    |   0   |    0    |
-| --------                      | --------            | -----  | ----- |  -----  |
-| terraform-github-repository   | No workflows        |        |       |         |
-| --------                      | --------            | -----  | ----- |  -----  |
-+-------------------------------+---------------------+--------+-------+---------+
++--------------------------------+---------------------+--------+-------+---------+
+| Repo Name                      | Workflow            | Ubuntu | MacOS | Windows |
++--------------------------------+---------------------+--------+-------+---------+
+| aws-infra                      | automerge.yml       |   0    |   0   |    0    |
+|                                | close-stale-prs.yml |   0    |   0   |    0    |
+|                                | enforce-labels.yml  |   0    |   0   |    0    |
+|                                | labeler.yml         |   0    |   0   |    0    |
+|                                | release.yml         |   0    |   0   |    0    |
+|                                | setup-terraform.yml |   0    |   0   |    0    |
+| --------                       | --------            | -----  | ----- |  -----  |
+| --------                       | --------            | -----  | ----- |  -----  |
+| github-audit                   | automerge.yml       |   0    |   0   |    0    |
+|                                | close-stale-prs.yml |   15   |   0   |    0    |
+|                                | enforce-labels.yml  |   0    |   0   |    0    |
+|                                | labeler.yml         |   0    |   0   |    0    |
+|                                | release.yml         |   0    |   0   |    0    |
+|                                | setup-terraform.yml |   0    |   0   |    0    |
+| --------                       | --------            | -----  | ----- |  -----  |
+| terraform-github-repository    | No workflows        |        |       |         |
+| --------                       | --------            | -----  | ----- |  -----  |
+| Usage Minutes 2022-06-13 13:59 |                     |   15   |   0   |    0    |
+| --------                       | --------            | -----  | ----- |  -----  |
+| Stats From GitHub              |                     |        |       |         |
+| Monthly Allowance: 2000        |                     |        |       |         |
+| Usage Minutes: 15              |                     |   15   |   0   |    0    |
+| Remaining Minutes: 1985        |                     |        |       |         |
+| Alarm Triggered at: 150        |                     |        |       |         |
+| Paid Minutes: 0                |                     |        |       |         |
+| Days Left in Cycle: 13         |                     |        |       |         |
++--------------------------------+---------------------+--------+-------+---------+
 ```
 
 ## How Does it Work?
