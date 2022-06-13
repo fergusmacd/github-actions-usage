@@ -35,6 +35,9 @@ machines in GitHub.
 
 So I wrote this action to address the problems above, in the following way:
 
+- fails the workflow if the minutes remaining drops below 100, or a user defined value meaning a notification will be
+  sent out to watchers
+- show remaining minutes left in billing period
 - give clear visibility of GitHub Action billing usage to all users
 - show total usage per repo
 - show total usage per repo and workflow
@@ -94,10 +97,14 @@ calls [GitHub List Organisational Repos API](https://docs.github.com/en/rest/rep
 . For repository workflows, it
 calls [GitHub List Repository Workflow API](https://docs.github.com/en/rest/actions/workflows#list-repository-workflows)
 . For workflow usage, it
-calls [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage). Finally for
-days left in the billing cycle , it
-calls [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
+calls [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage).
+
+For days left in the billing cycle , it
+calls [GitHub Get Actions billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
 .
+
+Finally for monthly allowance, paid minutes and what GitHub think has been used it
+calls [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-github-actions-billing-for-an-organization)
 
 ## Prerequisites to Run as an GH Action
 
@@ -112,7 +119,8 @@ calls [GitHub Get shared storage billing for an organization API](https://docs.g
 Create a file called `gha-audit.yml` in your `workflows` directory, paste the following as the contents and you are good
 to
 go. [GHA best practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions)
-recommend using a commit SHA, rather than a version. The example below runs on a schedule at 3AM every day.
+recommend using a commit SHA, rather than a version. The example below runs on a schedule at 3AM every day. This way
+when the remaining allowance drops below the threshold (100 or user defined) a notification will be triggered.
 
 ```
 name: GHA Billable Audit
@@ -130,13 +138,14 @@ jobs:
           organisation: ${{secrets.ORGANISATION}}
           gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
           loglevel: error # not required, change to debug if misbehaving
+          raisealarmremainingminutes: 100 # not required, defaults to 100
 ```
 
 ### Running Locally
 
 The docker file and python script can both be run locally in the following ways.
 
-### Running with Python
+#### Running with Python
 
 For python, from the python directory:
 
@@ -147,12 +156,13 @@ pip install -r requirements.txt
 export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
+export INPUT_RAISEALARMREMAININGMINUTES="150"
 
 # from python directory you can run
 python main.py
 ```
 
-### Running with Docker
+#### Running with Docker
 
 For Docker, run from the root directory:
 
@@ -163,7 +173,8 @@ docker build -t gha-billable-usage .
 export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
-docker run -v $PWD:/app/results -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
+export INPUT_RAISEALARMREMAININGMINUTES="150"
+docker run -v $PWD:/app/results -e INPUT_RAISEALARMREMAININGMINUTES=${INPUT_RAISEALARMREMAININGMINUTES} -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
 ```
 
 ## Common Errors

@@ -90,6 +90,8 @@ def main():
     included_minutes = monthly_usage_dic["included_minutes"]
     total_minutes_used = monthly_usage_dic["total_minutes_used"]
     total_paid_minutes_used = monthly_usage_dic["total_paid_minutes_used"]
+    raise_alarm_remaining_minutes = os.environ['INPUT_RAISEALARMREMAININGMINUTES']
+    remaining_minutes = included_minutes - total_minutes_used
 
     summary_table.add_row(["---------", "----", "----", "----"])
     summary_table.add_row(
@@ -102,6 +104,8 @@ def main():
     summary_table.add_row(["Usage Minutes: " + str(total_minutes_used),
                            monthly_usage_breakdown_dic["UBUNTU"], monthly_usage_breakdown_dic["MACOS"],
                            monthly_usage_breakdown_dic["WINDOWS"]])
+    summary_table.add_row(["Remaining Minutes: " + str(remaining_minutes), "", "", ""])
+    summary_table.add_row(["Alarm Triggered at: " + raise_alarm_remaining_minutes, "", "", ""])
     summary_table.add_row(["Paid Minutes: " + str(total_paid_minutes_used), "", "", ""])
     summary_table.add_row(["Days Left in Cycle: " + str(billing_days_left), "", "", ""])
     workflow_table.add_row(["Usage Minutes " + datetime.now().strftime(datetime_format), "",
@@ -113,6 +117,8 @@ def main():
     workflow_table.add_row(["Usage Minutes: " + str(total_minutes_used), "",
                             monthly_usage_breakdown_dic["UBUNTU"], monthly_usage_breakdown_dic["MACOS"],
                             monthly_usage_breakdown_dic["WINDOWS"]])
+    workflow_table.add_row(["Remaining Minutes: " + str(remaining_minutes), "", "", "", ""])
+    workflow_table.add_row(["Alarm Triggered at: " + raise_alarm_remaining_minutes, "", "", "", ""])
     workflow_table.add_row(["Paid Minutes: " + str(total_paid_minutes_used), "", "", "", ""])
 
     workflow_table.add_row(["Days Left in Cycle: " + str(billing_days_left), "", "", "", ""])
@@ -120,10 +126,8 @@ def main():
     print(workflow_table)
     # we should throw an error if we are running out of minutes as a warning
     # minutes buffer is how low the minutes should get before failing and raising an alarm
-    minutes_buffer = 1960
-    print(str(included_minutes - total_minutes_used))
-    if included_minutes - total_minutes_used < minutes_buffer:
-        raise Exception("Your organisation is running short on minutes!")
+    if remaining_minutes < int(raise_alarm_remaining_minutes):
+        raise Exception(f'Your organisation is running short on minutes, you have {raise_alarm_remaining_minutes} left')
 
 
 if __name__ == "__main__":
