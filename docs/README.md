@@ -31,6 +31,8 @@ runtime will be billed as 1 minute on Ubuntu, 10 minutes on MacOS, and 2 minutes
 minutes and costs can soon build up. It turned out, this was the cause of our high usage. Top tip: don't build MacOS
 machines in GitHub.
 
+## What the Action Does
+
 So I wrote this action to address the problems above, in the following way:
 
 - give clear visibility of GitHub Action billing usage to all users
@@ -81,18 +83,36 @@ in the prettyprint formatted ASCII tables like this:
 +-------------------------------+---------------------+--------+-------+---------+
 ```
 
+## How Does it Work?
+
+The action calls GitHub REST API endpoints to get the required information, and then prettyprint for formatting.
+
+To get the number of repos, it
+calls [GitHub Organisation API](https://docs.github.com/en/rest/orgs/orgs#get-an-organization). For information on each
+repo, it
+calls [GitHub List Organisational Repos API](https://docs.github.com/en/rest/repos/repos#list-organization-repositories)
+. For repository workflows, it
+calls [GitHub List Repository Workflow API](https://docs.github.com/en/rest/actions/workflows#list-repository-workflows)
+. For workflow usage, it
+calls [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage). Finally for
+days left in the billing cycle , it
+calls [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
+.
+
 ## Prerequisites to Run as an GH Action
 
 - an organisation or repo secret called `ORGANISATION` with the value of your organisation
-- a secret called `GITHUBAPIKEY` with the value being a personal access token (PAT) with scope `read:org` - for public
-  repos and `repo:full` - for private repos
+- a secret called `GITHUBAPIKEY` with the value being a personal access token (PAT) with scope `read:org` for reading
+  public repos and `repo:full` for reading private repos.
 
 ## Usage
 
 ### As a GitHub Action
 
 Create a file called `gha-audit.yml` in your `workflows` directory, paste the following as the contents and you are good
-to go
+to
+go. [GHA best practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions)
+recommend using a commit SHA, rather than a version.
 
 ```
 name: GHA Billable Audit
@@ -102,7 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: GitHub Actions Billable Usage Audit
-        uses: fergusmacd/github-action-usage@v0.4.0
+        uses: fergusmacd/github-action-usage@v0.4.0 # use a commit SHA
         # pass user input as arguments
         with:
           organisation: ${{secrets.ORGANISATION}}
@@ -116,7 +136,7 @@ The docker file and python script can both be run locally in the following ways.
 
 ### Running with Python
 
-For python, from the python directory
+For python, from the python directory:
 
 ```shell
 pip install -r requirements.txt
@@ -132,7 +152,7 @@ python main.py
 
 ### Running with Docker
 
-For Docker, run from the root directory
+For Docker, run from the root directory:
 
 ```shell
 # from root directory
@@ -146,15 +166,15 @@ docker run -v $PWD:/app/results -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORG
 
 ## Common Errors
 
-When problems happen, the best thing to do is set the log level to `debug` like this locally
+When problems happen, the best thing to do is set the log level to `debug` like this locally:
 
 ```shell
 export LOGLEVEL="debug"
 ```
 
-Or change the loglevel input in the GHA
+Or change the loglevel input in the GHA.
 
-The following one happens when running locally and the `INPUT_GITHUBAPIKEY` environment variable has not been exported
+The following one happens when running locally and the `INPUT_GITHUBAPIKEY` environment variable has not been exported:
 
 ```shell
 python3 main.py
@@ -171,7 +191,7 @@ KeyError: 'INPUT_GITHUBAPIKEY'
 
 ```
 
-This error happens when the PAT has expired or does not have sufficient permissions
+This error happens when the PAT has expired or does not have sufficient permissions:
 
 ```shell
 python3 main.py                                                     
@@ -199,7 +219,7 @@ The following APIs are used:
 - [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage) - for workflow
   usage
 - [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
-  - for days left in billing cycle
+    - for days left in billing cycle
 
 There are plenty of tutorials on prettyprint, I used this one:
 
