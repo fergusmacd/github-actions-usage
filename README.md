@@ -140,7 +140,7 @@ recommend using a commit SHA, rather than a version. The example below runs on a
 when the remaining allowance drops below the threshold (100 or user defined) a notification will be triggered.
 
 ```
-name: GHA USAGE Audit
+name: GHA Usage Audit
 on:
   schedule:
     - cron: "0 3 * * *" # Runs at 03:00 AM (UTC) every day
