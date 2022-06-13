@@ -1,5 +1,5 @@
-name: "GitHub Actions Billable Usage Audit"
-description: "Creates tables of billable GitHub Action usage by repo and workflow"
+name: "GitHub Actions Usage Audit"
+description: "Creates tables of GitHub Action usage by repo and workflow"
 author: "Fergus MacDermot"
 inputs:
   organisation:
@@ -22,7 +22,7 @@ inputs:
 
 outputs:
   warnings:
-    description: "prettyprint formatted tables with billable minutes by repo and workflow"
+    description: "prettyprint formatted tables with usage minutes by repo and workflow"
 runs:
   using: "docker"
   image: "Dockerfile"

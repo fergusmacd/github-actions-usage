@@ -1,11 +1,13 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fergusmacd_github-action-usage&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fergusmacd_github-action-usage)
 
-# GitHub Actions Billable Usage Audit
+# GitHub Actions Usage Audit
 
 This GitHub Action can:
 
-- print out action billable usage per organization repo
-- print out action billable usage per organization repo and workflow
+- fails when remaining minutes drop below a defined number
+- print out monthly action minutes budget
+- print out action usage per organization repo
+- print out action usage per organization repo and workflow
 - show totals for both of the above
 - print out the number of remaining days in the billing cycle
 - be run locally with Docker or python
@@ -22,14 +24,14 @@ has been reached, as we found out, the workflows will just stop running thereby 
 delivery pipeline. If the billing user is on holiday, this is pretty disastrous. Better to be forewarned and so extra
 credits can be added by the billing owner.
 
-However, the billable minutes total is hidden away in the admin section and so repo owners cannot even see GHA usage.
-Even if they could, the usage CSV that GitHub sends out contains too much information making it hard to isolate heavy
-usage workflows and repos.
+However, the usage minutes total is hidden away in the admin section and so repo owners cannot even see GHA usage. Even
+if they could, the usage CSV that GitHub sends out contains too much information making it hard to isolate heavy usage
+workflows and repos.
 
 Furthermore, MacOS usage is charged at 10x, Windows 2x the rate of Ubuntu machines. This means that a 7 second action
-runtime will be billed as 1 minute on Ubuntu, 10 minutes on MacOS, and 2 minutes on Windows. MacOS builds can take 20-30
-minutes and costs can soon build up. It turned out, this was the cause of our high usage. Top tip: don't build MacOS
-machines in GitHub.
+runtime will be consume 1 minute of the allowance on Ubuntu, 10 minutes on MacOS, and 2 minutes on Windows. MacOS builds
+can take 20-30 minutes and the free minutes soon dry up. It turned out, this was the cause of our high usage. Top tip:
+don't build MacOS machines in GitHub.
 
 ## What the Action Does
 
@@ -38,16 +40,15 @@ So I wrote this action to address the problems above, in the following way:
 - fails the workflow if the minutes remaining drops below 100, or a user defined value meaning a notification will be
   sent out to watchers
 - show remaining minutes left in billing period
-- give clear visibility of GitHub Action billing usage to all users
+- give clear visibility of GitHub Action usage to all users
 - show total usage per repo
 - show total usage per repo and workflow
 - show usage by machine type, i.e. Ubuntu, MacOS and Windows
-- show remaining days in the billing period
 
 To do this, the GHA prints out two tables:
 
-- total billable usage per repo
-- billable usage per repo and workflow
+- total usage per repo
+- usage per repo and workflow
 
 in the prettyprint formatted ASCII tables like this:
 
@@ -139,15 +140,15 @@ recommend using a commit SHA, rather than a version. The example below runs on a
 when the remaining allowance drops below the threshold (100 or user defined) a notification will be triggered.
 
 ```
-name: GHA Billable Audit
+name: GHA USAGE Audit
 on:
   schedule:
     - cron: "0 3 * * *" # Runs at 03:00 AM (UTC) every day
 jobs:
-  gha-billable-minutes-report:
+  gha-usage-minutes-report:
     runs-on: ubuntu-latest
     steps:
-      - name: GitHub Actions Billable Usage Audit
+      - name: GitHub Actions Usage Audit
         uses: fergusmacd/github-action-usage@daff7e5517914546a1e39fcc22f476e1471853f6 # use a commit SHA
         # pass user input as arguments
         with:
