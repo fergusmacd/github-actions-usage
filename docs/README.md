@@ -112,11 +112,13 @@ calls [GitHub Get shared storage billing for an organization API](https://docs.g
 Create a file called `gha-audit.yml` in your `workflows` directory, paste the following as the contents and you are good
 to
 go. [GHA best practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions)
-recommend using a commit SHA, rather than a version.
+recommend using a commit SHA, rather than a version. The example below runs on a schedule at 3AM every day.
 
 ```
 name: GHA Billable Audit
-on: push
+on:
+  schedule:
+    - cron: "0 3 * * *" # Runs at 03:00 AM (UTC) every day
 jobs:
   gha-billable-minutes-report:
     runs-on: ubuntu-latest
