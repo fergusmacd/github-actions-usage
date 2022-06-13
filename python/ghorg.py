@@ -58,3 +58,14 @@ def getremainingdaysinbillingperiod(org):
     logger.debug(f'Data from org: {json_data}')
 
     return json_data["days_left_in_billing_cycle"]
+
+
+def gettotalghausage(org):
+    api_url = 'https://api.github.com/orgs/{}/settings/billing/actions'.format(org)
+
+    logger.info(f'Data from api_url: {api_url}')
+    response = requests.get(api_url, headers=headers)
+    json_data = json.loads(response.text)
+
+    logger.debug(f'Data from org: {json_data}')
+    return json_data
