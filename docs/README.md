@@ -201,7 +201,7 @@ The following APIs are used:
 - [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage) - for workflow
   usage
 - [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
-    - for days left in billing cycle
+  - for days left in billing cycle
 
 There are plenty of tutorials on prettyprint, I used this one:
 
