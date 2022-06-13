@@ -124,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: GitHub Actions Billable Usage Audit
-        uses: fergusmacd/github-action-usage@v0.4.0 # use a commit SHA
+        uses: fergusmacd/github-action-usage@daff7e5517914546a1e39fcc22f476e1471853f6 # use a commit SHA
         # pass user input as arguments
         with:
           organisation: ${{secrets.ORGANISATION}}
