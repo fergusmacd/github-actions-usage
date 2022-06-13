@@ -9,6 +9,11 @@ from ghaworkflows import getrepoworkflows
 from ghorg import getreposfromorganisation, getremainingdaysinbillingperiod, gettotalghausage
 
 
+class RemainingMinutesThresholdError(Exception):
+    """Error thrown when the remaining minutes threshold has been breached"""
+    pass
+
+
 class RepoData:
 
     def __str__(self):
@@ -127,7 +132,8 @@ def main():
     # we should throw an error if we are running out of minutes as a warning
     # minutes buffer is how low the minutes should get before failing and raising an alarm
     if remaining_minutes < int(raise_alarm_remaining_minutes):
-        raise Exception(f'Your organisation is running short on minutes, you have {raise_alarm_remaining_minutes} left')
+        raise RemainingMinutesThresholdError(
+            f'Your organisation is running short on minutes, you have {raise_alarm_remaining_minutes} left')
 
 
 if __name__ == "__main__":
