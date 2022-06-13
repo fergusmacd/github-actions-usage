@@ -6,7 +6,12 @@ from prettytable import PrettyTable
 
 from customlogger import getlogger
 from ghaworkflows import getrepoworkflows
-from ghorg import getreposfromorganisation, getremainingdaysinbillingperiod
+from ghorg import getreposfromorganisation, getremainingdaysinbillingperiod, gettotalghausage
+
+
+class RemainingMinutesThresholdError(Exception):
+    """Error thrown when the remaining minutes threshold has been breached"""
+    pass
 
 
 class RepoData:
@@ -84,20 +89,51 @@ def main():
 
         workflow_table.add_row(["--------", "--------", "-----", "-----", "-----"])
 
+    # get what GH thinks our usage is
+    monthly_usage_dic = gettotalghausage(org)
+    monthly_usage_breakdown_dic = monthly_usage_dic["minutes_used_breakdown"]
+    included_minutes = monthly_usage_dic["included_minutes"]
+    total_minutes_used = monthly_usage_dic["total_minutes_used"]
+    total_paid_minutes_used = monthly_usage_dic["total_paid_minutes_used"]
+    raise_alarm_remaining_minutes = os.environ['INPUT_RAISEALARMREMAININGMINUTES']
+    remaining_minutes = included_minutes - total_minutes_used
+
     summary_table.add_row(["---------", "----", "----", "----"])
     summary_table.add_row(
-        ["Billable Minutes " + datetime.now().strftime(datetime_format), total_costs["UBUNTU"],
+        ["Usage Minutes " + datetime.now().strftime(datetime_format), total_costs["UBUNTU"],
          total_costs["MACOS"],
          total_costs["WINDOWS"]])
     summary_table.add_row(["---------", "----", "----", "----"])
-    summary_table.add_row(["Days left in cycle: " + str(billing_days_left), "", "", ""])
-    workflow_table.add_row(["Billable Minutes " + datetime.now().strftime(datetime_format), "",
+    summary_table.add_row(["Stats From GitHub", "", "", ""])
+    summary_table.add_row(["Monthly Allowance: " + str(included_minutes), "", "", ""])
+    summary_table.add_row(["Usage Minutes: " + str(total_minutes_used),
+                           monthly_usage_breakdown_dic["UBUNTU"], monthly_usage_breakdown_dic["MACOS"],
+                           monthly_usage_breakdown_dic["WINDOWS"]])
+    summary_table.add_row(["Remaining Minutes: " + str(remaining_minutes), "", "", ""])
+    summary_table.add_row(["Alarm Triggered at: " + raise_alarm_remaining_minutes, "", "", ""])
+    summary_table.add_row(["Paid Minutes: " + str(total_paid_minutes_used), "", "", ""])
+    summary_table.add_row(["Days Left in Cycle: " + str(billing_days_left), "", "", ""])
+    workflow_table.add_row(["Usage Minutes " + datetime.now().strftime(datetime_format), "",
                             validate_total_costs["UBUNTU"], validate_total_costs["MACOS"],
                             validate_total_costs["WINDOWS"]])
     workflow_table.add_row(["--------", "--------", "-----", "-----", "-----"])
-    workflow_table.add_row(["Days left in cycle: " + str(billing_days_left), "", "", "", ""])
+    workflow_table.add_row(["Stats From GitHub", "", "", "", ""])
+    workflow_table.add_row(["Monthly Allowance: " + str(included_minutes), "", "", "", ""])
+    workflow_table.add_row(["Usage Minutes: " + str(total_minutes_used), "",
+                            monthly_usage_breakdown_dic["UBUNTU"], monthly_usage_breakdown_dic["MACOS"],
+                            monthly_usage_breakdown_dic["WINDOWS"]])
+    workflow_table.add_row(["Remaining Minutes: " + str(remaining_minutes), "", "", "", ""])
+    workflow_table.add_row(["Alarm Triggered at: " + raise_alarm_remaining_minutes, "", "", "", ""])
+    workflow_table.add_row(["Paid Minutes: " + str(total_paid_minutes_used), "", "", "", ""])
+
+    workflow_table.add_row(["Days Left in Cycle: " + str(billing_days_left), "", "", "", ""])
     print(summary_table)
     print(workflow_table)
+    # we should throw an error if we are running out of minutes as a warning
+    # minutes buffer is how low the minutes should get before failing and raising an alarm
+    if remaining_minutes < int(raise_alarm_remaining_minutes):
+        raise RemainingMinutesThresholdError(
+            f'Your organisation is running short on minutes, you have {raise_alarm_remaining_minutes} left')
 
 
 if __name__ == "__main__":

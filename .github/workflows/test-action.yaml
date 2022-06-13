@@ -18,3 +18,5 @@ jobs:
           organisation: ${{secrets.ORGANISATION}}
           gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
           loglevel: debug
+          raisealarmremainingminutes: 100
+

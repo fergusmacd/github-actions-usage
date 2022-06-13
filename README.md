@@ -1,11 +1,13 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fergusmacd_github-action-usage&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fergusmacd_github-action-usage)
 
-# GitHub Actions Billable Usage Audit
+# GitHub Actions Usage Audit
 
 This GitHub Action can:
 
-- print out action billable usage per organization repo
-- print out action billable usage per organization repo and workflow
+- fails when remaining minutes drop below a defined number
+- print out monthly action minutes budget
+- print out action usage per organization repo
+- print out action usage per organization repo and workflow
 - show totals for both of the above
 - print out the number of remaining days in the billing cycle
 - be run locally with Docker or python
@@ -22,65 +24,83 @@ has been reached, as we found out, the workflows will just stop running thereby 
 delivery pipeline. If the billing user is on holiday, this is pretty disastrous. Better to be forewarned and so extra
 credits can be added by the billing owner.
 
-However, the billable minutes total is hidden away in the admin section and so repo owners cannot even see GHA usage.
-Even if they could, the usage CSV that GitHub sends out contains too much information making it hard to isolate heavy
-usage workflows and repos.
+However, the usage minutes total is hidden away in the admin section and so repo owners cannot even see GHA usage. Even
+if they could, the usage CSV that GitHub sends out contains too much information making it hard to isolate heavy usage
+workflows and repos.
 
 Furthermore, MacOS usage is charged at 10x, Windows 2x the rate of Ubuntu machines. This means that a 7 second action
-runtime will be billed as 1 minute on Ubuntu, 10 minutes on MacOS, and 2 minutes on Windows. MacOS builds can take 20-30
-minutes and costs can soon build up. It turned out, this was the cause of our high usage. Top tip: don't build MacOS
-machines in GitHub.
+runtime will be consume 1 minute of the allowance on Ubuntu, 10 minutes on MacOS, and 2 minutes on Windows. MacOS builds
+can take 20-30 minutes and the free minutes soon dry up. It turned out, this was the cause of our high usage. Top tip:
+don't build MacOS machines in GitHub.
 
 ## What the Action Does
 
 So I wrote this action to address the problems above, in the following way:
 
-- give clear visibility of GitHub Action billing usage to all users
+- fails the workflow if the minutes remaining drops below 100, or a user defined value meaning a notification will be
+  sent out to watchers
+- show remaining minutes left in billing period
+- give clear visibility of GitHub Action usage to all users
 - show total usage per repo
 - show total usage per repo and workflow
 - show usage by machine type, i.e. Ubuntu, MacOS and Windows
-- show remaining days in the billing period
 
 To do this, the GHA prints out two tables:
 
-- total billable usage per repo
-- billable usage per repo and workflow
+- total usage per repo
+- usage per repo and workflow
 
 in the prettyprint formatted ASCII tables like this:
 
 ```
-+-------------------------------+--------+-------+---------+
-| Repo Name                     | Ubuntu | MacOS | Windows |
-+-------------------------------+--------+-------+---------+
-| aws-infra                     |   0    |   0   |    0    |
-| cicd-images                   |   0    |   0   |    0    |
-| terraform-github-repository   |   0    |   0   |    0    |
-| ---------                     |  ----  |  ---- |   ----  |
-| Total Costs                   |   30   |   0   |    0    |
-| ---------                     |  ----  |  ---- |   ----  |
-+-------------------------------+--------+-------+---------+
++--------------------------------+--------+-------+---------+
+| Repo Name                      | Ubuntu | MacOS | Windows |
++------------------------------- +--------+-------+---------+
+| aws-infra                      |   0    |   0   |    0    |
+| cicd-images                    |   12   |   0   |    0    |
+| terraform-github-repository    |   39   |   0   |    0    |
+| ---------                      |  ----  |  ---- |   ----  |
+| Usage Minutes 2022-06-13 13:59 |   51   |   0   |    0    |
+| ---------                      |  ----  |  ---- |   ----  |
+| Stats From GitHub              |        |       |         |
+| Monthly Allowance: 2000        |        |       |         |
+| Usage Minutes: 51              |   51   |   0   |    0    |
+| Remaining Minutes: 1949        |        |       |         |
+| Alarm Triggered at: 150        |        |       |         |
+| Paid Minutes: 0                |        |       |         |
+| Days Left in Cycle: 13         |        |       |         |
++--------------------------------+--------+-------+---------+
 
-+-------------------------------+---------------------+--------+-------+---------+
-| Repo Name                     | Workflow            | Ubuntu | MacOS | Windows |
-+-------------------------------+---------------------+--------+-------+---------+
-| aws-infra                     | automerge.yml       |   0    |   0   |    0    |
-|                               | close-stale-prs.yml |   0    |   0   |    0    |
-|                               | enforce-labels.yml  |   0    |   0   |    0    |
-|                               | labeler.yml         |   0    |   0   |    0    |
-|                               | release.yml         |   0    |   0   |    0    |
-|                               | setup-terraform.yml |   0    |   0   |    0    |
-| --------                      | --------            | -----  | ----- |  -----  |
-| --------                      | --------            | -----  | ----- |  -----  |
-| github-audit                  | automerge.yml       |   0    |   0   |    0    |
-|                               | close-stale-prs.yml |   15   |   0   |    0    |
-|                               | enforce-labels.yml  |   0    |   0   |    0    |
-|                               | labeler.yml         |   0    |   0   |    0    |
-|                               | release.yml         |   0    |   0   |    0    |
-|                               | setup-terraform.yml |   0    |   0   |    0    |
-| --------                      | --------            | -----  | ----- |  -----  |
-| terraform-github-repository   | No workflows        |        |       |         |
-| --------                      | --------            | -----  | ----- |  -----  |
-+-------------------------------+---------------------+--------+-------+---------+
++--------------------------------+---------------------+--------+-------+---------+
+| Repo Name                      | Workflow            | Ubuntu | MacOS | Windows |
++--------------------------------+---------------------+--------+-------+---------+
+| aws-infra                      | automerge.yml       |   0    |   0   |    0    |
+|                                | close-stale-prs.yml |   0    |   0   |    0    |
+|                                | enforce-labels.yml  |   0    |   0   |    0    |
+|                                | labeler.yml         |   0    |   0   |    0    |
+|                                | release.yml         |   0    |   0   |    0    |
+|                                | setup-terraform.yml |   0    |   0   |    0    |
+| --------                       | --------            | -----  | ----- |  -----  |
+| --------                       | --------            | -----  | ----- |  -----  |
+| github-audit                   | automerge.yml       |   0    |   0   |    0    |
+|                                | close-stale-prs.yml |   15   |   0   |    0    |
+|                                | enforce-labels.yml  |   0    |   0   |    0    |
+|                                | labeler.yml         |   0    |   0   |    0    |
+|                                | release.yml         |   0    |   0   |    0    |
+|                                | setup-terraform.yml |   0    |   0   |    0    |
+| --------                       | --------            | -----  | ----- |  -----  |
+| terraform-github-repository    | No workflows        |        |       |         |
+| --------                       | --------            | -----  | ----- |  -----  |
+| Usage Minutes 2022-06-13 13:59 |                     |   15   |   0   |    0    |
+| --------                       | --------            | -----  | ----- |  -----  |
+| Stats From GitHub              |                     |        |       |         |
+| Monthly Allowance: 2000        |                     |        |       |         |
+| Usage Minutes: 15              |                     |   15   |   0   |    0    |
+| Remaining Minutes: 1985        |                     |        |       |         |
+| Alarm Triggered at: 150        |                     |        |       |         |
+| Paid Minutes: 0                |                     |        |       |         |
+| Days Left in Cycle: 13         |                     |        |       |         |
++--------------------------------+---------------------+--------+-------+---------+
 ```
 
 ## How Does it Work?
@@ -94,10 +114,14 @@ calls [GitHub List Organisational Repos API](https://docs.github.com/en/rest/rep
 . For repository workflows, it
 calls [GitHub List Repository Workflow API](https://docs.github.com/en/rest/actions/workflows#list-repository-workflows)
 . For workflow usage, it
-calls [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage). Finally for
-days left in the billing cycle , it
-calls [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
+calls [GitHub Get Workflow Usage API](https://docs.github.com/en/rest/actions/workflows#get-workflow-usage).
+
+For days left in the billing cycle , it
+calls [GitHub Get Actions billing for an organization API](https://docs.github.com/en/rest/billing#get-shared-storage-billing-for-an-organization)
 .
+
+Finally for monthly allowance, paid minutes and what GitHub think has been used it
+calls [GitHub Get shared storage billing for an organization API](https://docs.github.com/en/rest/billing#get-github-actions-billing-for-an-organization)
 
 ## Prerequisites to Run as an GH Action
 
@@ -112,31 +136,33 @@ calls [GitHub Get shared storage billing for an organization API](https://docs.g
 Create a file called `gha-audit.yml` in your `workflows` directory, paste the following as the contents and you are good
 to
 go. [GHA best practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions)
-recommend using a commit SHA, rather than a version. The example below runs on a schedule at 3AM every day.
+recommend using a commit SHA, rather than a version. The example below runs on a schedule at 3AM every day. This way
+when the remaining allowance drops below the threshold (100 or user defined) a notification will be triggered.
 
 ```
-name: GHA Billable Audit
+name: GHA USAGE Audit
 on:
   schedule:
     - cron: "0 3 * * *" # Runs at 03:00 AM (UTC) every day
 jobs:
-  gha-billable-minutes-report:
+  gha-usage-minutes-report:
     runs-on: ubuntu-latest
     steps:
-      - name: GitHub Actions Billable Usage Audit
+      - name: GitHub Actions Usage Audit
         uses: fergusmacd/github-action-usage@daff7e5517914546a1e39fcc22f476e1471853f6 # use a commit SHA
         # pass user input as arguments
         with:
           organisation: ${{secrets.ORGANISATION}}
           gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
           loglevel: error # not required, change to debug if misbehaving
+          raisealarmremainingminutes: 100 # not required, defaults to 100
 ```
 
 ### Running Locally
 
 The docker file and python script can both be run locally in the following ways.
 
-### Running with Python
+#### Running with Python
 
 For python, from the python directory:
 
@@ -147,12 +173,13 @@ pip install -r requirements.txt
 export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
+export INPUT_RAISEALARMREMAININGMINUTES="150"
 
 # from python directory you can run
 python main.py
 ```
 
-### Running with Docker
+#### Running with Docker
 
 For Docker, run from the root directory:
 
@@ -163,7 +190,8 @@ docker build -t gha-billable-usage .
 export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
-docker run -v $PWD:/app/results -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
+export INPUT_RAISEALARMREMAININGMINUTES="150"
+docker run -v $PWD:/app/results -e INPUT_RAISEALARMREMAININGMINUTES=${INPUT_RAISEALARMREMAININGMINUTES} -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
 ```
 
 ## Common Errors
