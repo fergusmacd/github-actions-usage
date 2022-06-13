@@ -13,6 +13,13 @@ inputs:
       info will give logging from the python code. warning and error return any exceptions"
     required: false
     default: "warning"
+  raisealarmremainingminutes:
+    description: "The number of remaining minutes below which the workflow will fail, and so notification will
+      be sent. For example if the monthly allowance is 2000, and 1901 minutes are used, then teh workflow will
+      fail based on the default of 100 minutes remaining"
+    required: false
+    default: "100"
+
 outputs:
   warnings:
     description: "prettyprint formatted tables with billable minutes by repo and workflow"
