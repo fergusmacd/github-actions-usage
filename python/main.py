@@ -133,7 +133,7 @@ def main():
     # minutes buffer is how low the minutes should get before failing and raising an alarm
     if remaining_minutes < int(raise_alarm_remaining_minutes):
         raise RemainingMinutesThresholdError(
-            f'Your organisation is running short on minutes, you have {raise_alarm_remaining_minutes} left')
+            f'Your organisation is running short on minutes, you have {remaining_minutes} left')
 
 
 if __name__ == "__main__":
