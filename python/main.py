@@ -43,14 +43,17 @@ def main():
     billing_days_left = getremainingdaysinbillingperiod(org)
     repos_usage = []
     total_costs = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
+    ignore_empty = True if os.environ['INPUT_SKIPREPOSWITHOUTUSAGE'] == 'true' else False
     # Collect the data from each repo
     for repo_name in repo_names:
         actions = []
         repo_data = RepoData(repo_name, dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0), actions)
         logger.info(f"*************** Repo Name {repo_data.name} ***************")
         getrepoworkflows(org, repo_data)
-        repos_usage.append(repo_data)
         logger.info(f"*************** Repo Usage Summary {repo_data.usage} ***************")
+        if not ignore_empty or repo_data.usage["UBUNTU"] > 0 or repo_data.usage["MACOS"] > 0 or repo_data.usage["WINDOWS"] > 0:
+            repos_usage.append(repo_data)
+
         total_costs["UBUNTU"] += repo_data.usage["UBUNTU"]
         total_costs["MACOS"] += repo_data.usage["MACOS"]
         total_costs["WINDOWS"] += repo_data.usage["WINDOWS"]
