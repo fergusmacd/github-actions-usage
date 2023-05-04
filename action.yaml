@@ -19,6 +19,10 @@ inputs:
       fail based on the default of 100 minutes remaining"
     required: false
     default: "100"
+  skipReposWithoutUsage:
+    description: "Don't print information about repos that have no workflow runs"
+    required: false
+    default: "False"
 
 outputs:
   warnings:

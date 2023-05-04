@@ -156,6 +156,7 @@ jobs:
           gitHubAPIKey: ${{secrets.GITHUBAPIKEY}} # default token in GitHub Workflow
           loglevel: error # not required, change to debug if misbehaving
           raisealarmremainingminutes: 100 # not required, defaults to 100
+          skipReposWithoutUsage: false
 ```
 
 ### Running Locally
@@ -174,7 +175,8 @@ export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
 export INPUT_RAISEALARMREMAININGMINUTES="150"
-
+export INPUT_SKIPREPOSWITHOUTUSAGE="false"
+export 
 # from python directory you can run
 python main.py
 ```
@@ -191,7 +193,8 @@ export INPUT_LOGLEVEL=debug|info|warning|error
 export INPUT_ORGANISATION="myorg"
 export INPUT_GITHUBAPIKEY="***"
 export INPUT_RAISEALARMREMAININGMINUTES="150"
-docker run -v $PWD:/app/results -e INPUT_RAISEALARMREMAININGMINUTES=${INPUT_RAISEALARMREMAININGMINUTES} -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -it gha-billable-usage
+export INPUT_SKIPREPOSWITHOUTUSAGE="false"
+docker run -v $PWD:/app/results -e INPUT_RAISEALARMREMAININGMINUTES=${INPUT_RAISEALARMREMAININGMINUTES} -e INPUT_LOGLEVEL=${INPUT_LOGLEVEL} -e INPUT_ORGANISATION=${INPUT_ORGANISATION} -e INPUT_GITHUBAPIKEY=${INPUT_GITHUBAPIKEY} -e INPUT_SKIPREPOSWITHOUTUSAGE=${INPUT_SKIPREPOSWITHOUTUSAGE} -it gha-billable-usage
 ```
 
 ## Common Errors
