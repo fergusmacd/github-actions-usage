@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Release
-        uses: K-Phoen/semver-release-action@v1.3.1
+        uses: K-Phoen/semver-release-action@66213203ee3728bef68a86aaef47057e9a6b9480
         with:
           release_branch: main
           release_strategy: release
